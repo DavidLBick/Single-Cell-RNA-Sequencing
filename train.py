@@ -134,7 +134,7 @@ def main():
     TRAIN_FLAG = True
     VAL_FLAG = True
     if TRAIN_FLAG:
-        trainer.train(N_EPOCHS, 
+        trainer.train(config.N_EPOCHS, 
                       dataloading.train_loader, 
                       dataloading.val_loader,
                       VAL_FLAG)
