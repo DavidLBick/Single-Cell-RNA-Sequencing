@@ -26,7 +26,7 @@ def add_some(n_classes, current_amount, target_n, selections, new_set):
 	
 def prune_to_correct_amount(selections, target_n):
 	n_classes = selections.shape[0]
-	current_amount = np.unique(selections)
+	current_amount = n_unique(selections)
 	current_cutoff_rank = selections.shape[0]
 	new_set = selections
 	while n_features_not_close_enough(n_classes, current_amount, target_n):
@@ -38,28 +38,28 @@ def prune_to_correct_amount(selections, target_n):
 	
 		
 def simple_prune_to_correct_amount(selections, target_n):
-	current_amount = np.unique(selections)
+	current_amount = n_unique(selections)
 	while current_amount > target_n:
 		selections = selections[:, :-1]  # remove at max <n_classes> features at a time
-		current_amount = np.unique(selections)
+		current_amount = n_unique(selections)
 	return selections	
 
 
 def select_features(data, n_features):
-	all_selections = np.array((data.shape[0], n_features))
+	all_selections = np.empty((len(data.unique_labels), n_features), dtype=np.int16)
 	for i, label in enumerate(data.unique_labels):
 		omp_selector = LogisticOMP(n_nonzero_coefs=n_features, eps=0.001)
 		data.relabel(label)
 		omp_selector.fit(data.features, data.relabels)
 		feat_idx, ranked_features = omp_selector.get_selected_feature_idxs()
-		all_selections[i] = ranked_features
-		print("ranked features selected for {}: {}".format(label, ranking))
+		all_selections[i, :] = ranked_features
+		# print("ranked features selected for {}: {}".format(label, ranked_features))
 		print("ranked features selected for {} found".format(label))
 	
 	print("pruning features...")
 	final_set = simple_prune_to_correct_amount(all_selections, n_features)
-	print("size of final set:", final_set.shape)
-	print("final set:", final_set)
+	print("size of final set:", final_set.size)
+	# print("final set:", final_set)
 	return final_set
 
 
@@ -69,9 +69,9 @@ def main(data_path, n_features, n_rows):
 	data = Data(h5_path=data_path, n_rows=n_rows)
 	data.load_data()
 	selected_set = select_features(data, n_features)
-	output_file = '{}_selected_features_from_{}_{}_rows.npy'.format(n_features, data_path, n_rows)
+	output_file = '{}_selected_features_from_{}_{}_rows.npy'.format(n_features, data_path.replace('.', '').replace('/', ''), n_rows)
 	np.save(output_file, selected_set)
-	print('selected set saved in', output_file)
+	print('selected set saved in {} as a np array (n_classes, features_per_class)'.format(output_file))
 
 if __name__ == '__main__':
 	if len(sys.argv) < 3:

@@ -16,7 +16,7 @@ class LogisticOMP:
 		self.last_slctd_feature = None
 		self.last_slctd_correlation = None
 		self.feature_ranking = []
-		self.clf = LogisticRegression(random_state=0, solver='saga', n_jobs=-1, max_iter=5000, class_weight='balanced')
+		self.clf = LogisticRegression(random_state=0, solver='saga', n_jobs=-1, max_iter=10000, class_weight='balanced')
 		
 	def converged(self):
 		# if enough non_zero_coefficients are found
@@ -38,7 +38,7 @@ class LogisticOMP:
 		masked_correlations = np.multiply(all_correlations, np.invert(self.G))
 		self.last_slctd_feature = np.argmax(masked_correlations)
 		self.last_slctd_correlation = all_correlations[self.last_slctd_feature]
-		print("correlation of selected feature:", self.last_slctd_correlation)
+		# print("correlation of selected feature:", self.last_slctd_correlation)
 		self.feature_ranking.append(self.last_slctd_feature)
 	
 	def update_beta(self):
