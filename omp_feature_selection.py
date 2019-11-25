@@ -38,6 +38,7 @@ def prune_to_correct_amount(selections, target_n):
 	
 		
 def simple_prune_to_correct_amount(selections, target_n):
+	print("pruning features...")
 	current_amount = n_unique(selections)
 	while current_amount > target_n:
 		selections = selections[:, :-1]  # remove at max <n_classes> features at a time
@@ -56,9 +57,9 @@ def select_features(data, n_features):
 		# print("ranked features selected for {}: {}".format(label, ranked_features))
 		print("ranked features selected for {} found".format(label))
 	
-	print("pruning features...")
-	final_set = simple_prune_to_correct_amount(all_selections, n_features)
+	# final_set = simple_prune_to_correct_amount(all_selections, n_features)
 	print("size of final set:", final_set.size)
+	print("number of unique features:", n_unique(final_set))
 	# print("final set:", final_set)
 	return final_set
 
