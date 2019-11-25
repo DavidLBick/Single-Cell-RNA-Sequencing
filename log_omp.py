@@ -2,7 +2,7 @@ import numpy as np
 from scipy.special import expit
 from sklearn.linear_model import LogisticRegression
 
-# implementation of orthogonal matching pursuit for logistic regression
+# implementation of orthogonal matching pursuit for logistic regression: http://proceedings.mlr.press/v15/lozano11a/lozano11a.pdf
 
 class LogisticOMP:
 	def __init__(self, n_nonzero_coefs, eps):
@@ -16,7 +16,7 @@ class LogisticOMP:
 		self.last_slctd_feature = None
 		self.last_slctd_correlation = None
 		self.feature_ranking = []
-		self.clf = LogisticRegression(random_state=0, solver='saga', n_jobs=-1, max_iter=5000)
+		self.clf = LogisticRegression(random_state=0, solver='saga', n_jobs=-1, max_iter=5000, class_weight='balanced')
 		
 	def converged(self):
 		# if enough non_zero_coefficients are found
@@ -67,5 +67,5 @@ class LogisticOMP:
 		return self
 		
 	def get_selected_feature_idxs(self):
-		return np.nonzero(self.G), self.feature_ranking
+		return np.nonzero(self.G), np.array(self.feature_ranking)
 	
