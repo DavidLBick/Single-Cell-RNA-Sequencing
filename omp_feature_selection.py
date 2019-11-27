@@ -11,22 +11,28 @@ def n_unique(array):
 	return np.unique(array).size
 	
 	
-def select_features(data, n_features):
-	all_selections = np.empty((len(data.unique_labels), n_features), dtype=np.int16)
+def select_features(data, target_n_features):
+	n_classes = n_unique(data.unique_labels)
+	n_features_per_class = int(n_features/n_classes)
+	actual_n_features = int(n_features_per_class*n_classes)
+	print('resulting number of features selected:', actual_n_features)
+	all_selections = np.empty((actual_n_features), dtype=np.int16)
+	omp_selector = LogisticOMP(n_nonzero_coefs=n_features_per_class, eps=0.001)
 	for i, label in enumerate(data.unique_labels):
-		omp_selector = LogisticOMP(n_nonzero_coefs=n_features, eps=0.001)
 		data.relabel(label)
-		omp_selector.fit(data.features, data.relabels)
-		feat_idx, ranked_features = omp_selector.get_selected_feature_idxs()
-		all_selections[i, :] = ranked_features
+		omp_selector.partial_fit(data.features, data.relabels)
+		# feat_idx, ranked_features = omp_selector.get_selected_feature_idxs()
+		# all_selections[i, :] = ranked_features
 		# print("ranked features selected for {}: {}".format(label, ranked_features))
-		print("ranked features selected for {} found".format(label))
+		# print("ranked features selected for {} found".format(label))
+	idxs, _ = omp_selector.get_selected_feature_idxs()
+	
 	
 	# final_set = simple_prune_to_correct_amount(all_selections, n_features)
-	print("size of final set:", all_selections.size)
-	print("number of unique features:", n_unique(all_selections))
+	print("size of final set:", idxs.size)
+	# print("number of unique features:", n_unique(all_selections))
 	# print("final set:", final_set)
-	return all_selections
+	return idxs
 
 
 def main(data_path, n_features, n_rows):
