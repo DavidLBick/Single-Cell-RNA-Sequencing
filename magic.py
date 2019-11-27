@@ -19,4 +19,4 @@ if __name__ == '__main__':
 	elif len(sys.argv) == 2:
 		main(sys.argv[1], n_rows='all')
 	elif len(sys.argv) == 3:
-		main(sys.argv[1], n_rows=sys.argv[2])
+		main(sys.argv[1], n_rows=int(sys.argv[2])
