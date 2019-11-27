@@ -13,7 +13,7 @@ def n_unique(array):
 	
 def select_features(data, target_n_features):
 	n_classes = n_unique(data.unique_labels)
-	n_features_per_class = int(n_features/n_classes)
+	n_features_per_class = int(target_n_features/n_classes)
 	actual_n_features = int(n_features_per_class*n_classes)
 	print('resulting number of features selected:', actual_n_features)
 	all_selections = np.empty((actual_n_features), dtype=np.int16)
