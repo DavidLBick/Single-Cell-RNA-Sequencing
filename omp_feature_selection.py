@@ -23,10 +23,10 @@ def select_features(data, n_features):
 		print("ranked features selected for {} found".format(label))
 	
 	# final_set = simple_prune_to_correct_amount(all_selections, n_features)
-	print("size of final set:", final_set.size)
-	print("number of unique features:", n_unique(final_set))
+	print("size of final set:", all_selections.size)
+	print("number of unique features:", n_unique(all_selections))
 	# print("final set:", final_set)
-	return final_set
+	return all_selections
 
 
 def main(data_path, n_features, n_rows):
