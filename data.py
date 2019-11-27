@@ -9,6 +9,7 @@ class Data:
 		self.labels = None
 		self.unique_labels = None
 		self.relabels = None
+		self.dataframe = None
 		
 	def load_data(self):
 		store = pd.HDFStore(self.path)
@@ -20,6 +21,7 @@ class Data:
 			labels = store['labels'].iloc[:self.n_rows]
 		unique_labels = list(np.unique(labels))
 		store.close()
+		self.dataframe = feature_matrix_dataframe
 		self.features = feature_matrix_dataframe.to_numpy()
 		self.labels = labels.to_numpy()
 		self.unique_labels = unique_labels
