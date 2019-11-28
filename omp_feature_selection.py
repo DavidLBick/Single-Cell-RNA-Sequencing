@@ -16,25 +16,29 @@ def select_features(data, target_n_features):
 	n_features_per_class = int(target_n_features/n_classes)
 	actual_n_features = int(n_features_per_class*n_classes)
 	print('resulting number of features selected:', actual_n_features)
-	all_selections = np.empty((actual_n_features), dtype=np.int16)
-	omp_selector = LogisticOMP(n_nonzero_coefs=n_features_per_class, eps=0.001)
+	
 	if data.has_imputed_features:
 		train_data = data.imputed_features
 	else:
 		train_data = data.features
-	for i, label in enumerate(data.unique_labels):
-		data.relabel(label)
-		omp_selector.partial_fit(train_data, data.relabels)
-
-	idxs, _ = omp_selector.get_selected_feature_idxs()
 	
+	all_selections = np.zeros((data.features.shape[1]), dtype=bool)
+	for i, label in enumerate(data.unique_labels):
+		omp_selector = LogisticOMP(n_nonzero_coefs=n_features_per_class, eps=0.001)
+		data.relabel(label)
+		omp_selector.fit(train_data, data.relabels, all_selections)
+		new_selected_features = omp_selector.get_binary_selected_feature_vector()
+		all_selections += new_selected_features
+		print('total amount of features selected:', np.nonzero(all_selections)[0].size)
+	
+	idxs = np.nonzero(all_selections)[0]
+	print('idxs', idxs)
 	
 	# final_set = simple_prune_to_correct_amount(all_selections, n_features)
 	print("size of final set:", idxs.size)
 	# print("number of unique features:", n_unique(all_selections))
 	# print("final set:", final_set)
 	return idxs
-
 
 def main(data_path, n_features, n_rows, imputed_features):
 	# print(data_path)
