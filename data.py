@@ -21,16 +21,18 @@ class Data:
 		if self.n_rows == 'all':
 			feature_matrix_dataframe = store['rpkm']
 			labels = store['labels']
+			if self.has_imputed_features:
+				self.imputed_features = np.load(self.imputed_feature_path)
 		else:
 			feature_matrix_dataframe = store['rpkm'].iloc[:self.n_rows]
 			labels = store['labels'].iloc[:self.n_rows]
+			if self.has_imputed_features:
+				self.imputed_features = np.load(self.imputed_feature_path)[:self.n_rows]
 		unique_labels = list(np.unique(labels))
 		store.close()
 		self.features = feature_matrix_dataframe.to_numpy()
 		self.labels = labels.to_numpy()
 		self.unique_labels = unique_labels
-		if self.has_imputed_features:
-			self.imputed_features = np.load(self.imputed_feature_path)[:self.n_rows]
 		print("{} rows data loaded".format(self.n_rows))
 		return self.features, self.labels, self.unique_labels
 	

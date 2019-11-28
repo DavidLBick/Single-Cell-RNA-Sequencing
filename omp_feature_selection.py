@@ -50,10 +50,9 @@ if __name__ == '__main__':
 	if len(sys.argv) < 3:
 		print('no data path or number of features given')
 	elif len(sys.argv) == 3:
-		main(str(sys.argv[1]), n_features=int(sys.argv[2]), n_rows='all', imputed_features=None)
+		main(str(sys.argv[1]), n_features=int(sys.argv[2]), imputed_features=None, n_rows='all')
 	elif len(sys.argv) == 4:
 		# print('3 arguments given')
-		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), n_rows=int(sys.argv[3]), imputed_features=None)
+		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), imputed_features=str(sys.argv[3]), n_rows='all')
 	elif len(sys.argv) == 5:
-		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), n_rows=int(sys.argv[3]), imputed_features=str(sys.argv[4])
-
+		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), imputed_features=str(sys.argv[3]), n_rows=int(sys.argv[4]))
