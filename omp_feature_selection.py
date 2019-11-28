@@ -4,11 +4,11 @@ import sys
 import math
 import numpy as np
 # do feature selection for each class separately and take union of the selected features
-# usage: python omp_feature_selection.py <data_path> <n_features_to_select> <n_rows (optional)>
+# usage: python omp_feature_selection.py <data_path> <n_features_to_select> <imputed_features npy filepath> <n_rows (optional)>
 # python omp_feature_selection.py ../train_data.h5 10
 
 def n_unique(array):
-	return np.unique(array).size
+	return np.unique(array).size 
 	
 	
 def select_features(data, target_n_features):
@@ -24,18 +24,22 @@ def select_features(data, target_n_features):
 	
 	all_selections = np.zeros((data.features.shape[1]), dtype=bool)
 	for i, label in enumerate(data.unique_labels):
+		print("selecting features for class {}/{}".format(i, data.unique_labels.size))
 		omp_selector = LogisticOMP(n_nonzero_coefs=n_features_per_class, eps=0.001)
 		data.relabel(label)
 		omp_selector.fit(train_data, data.relabels, all_selections)
 		new_selected_features = omp_selector.get_binary_selected_feature_vector()
 		all_selections += new_selected_features
-		print('total amount of features selected:', np.nonzero(all_selections)[0].size)
-	
+		print('total amount of features currently selected:', np.nonzero(all_selections)[0].size)
+		temp_filename = "temp_features_{}_outof_{}_classes.npy".format(i, data.unique_labels.size)
+		np.save(temp_filename, all_selections)
+		print('temp features saved in:', temp_filename)
+		
 	idxs = np.nonzero(all_selections)[0]
-	print('idxs', idxs)
+	# print('idxs', idxs)
 	
 	# final_set = simple_prune_to_correct_amount(all_selections, n_features)
-	print("size of final set:", idxs.size)
+	# print("size of final set:", idxs.size)
 	# print("number of unique features:", n_unique(all_selections))
 	# print("final set:", final_set)
 	return idxs

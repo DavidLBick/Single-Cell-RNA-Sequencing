@@ -52,7 +52,7 @@ class LogisticOMP:
 	
 	def update_beta(self):
 		slctd_X = self.X[:, self.G]
-		print('columns in logistic regression training:', slctd_X.shape[1])
+		# print('columns in logistic regression training:', slctd_X.shape[1])
 		self.clf.fit(slctd_X, self.y)
 		learned_params = self.clf.coef_[0]
 		# print("learned_params", learned_params)
