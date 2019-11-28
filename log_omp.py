@@ -16,7 +16,7 @@ class LogisticOMP:
 		self.last_slctd_feature = None
 		self.last_slctd_correlation = None
 		self.feature_ranking = []
-		self.clf = LogisticRegression(random_state=0, solver='saga', n_jobs=-1, max_iter=10000, class_weight='balanced')
+		self.clf = LogisticRegression(random_state=0, solver='saga', n_jobs=-1, max_iter=10000, class_weight='balanced', warm_start=True)
 		self.n_features_selected = 0
 		self.first_run = True
 
@@ -52,6 +52,8 @@ class LogisticOMP:
 		slctd_X = self.X[:, self.G]
 		self.clf.fit(slctd_X, self.y)
 		learned_params = self.clf.coef_
+		print("learned_params", learned_params)
+		print("weights_
 		weights_idxs, _ = self.get_selected_feature_idxs()
 		for logistic_idx, weight_idx in enumerate(weights_idxs):
 			self.beta[weight_idx] = learned_params[logistic_idx]
