@@ -18,13 +18,14 @@ def select_features(data, target_n_features):
 	print('resulting number of features selected:', actual_n_features)
 	all_selections = np.empty((actual_n_features), dtype=np.int16)
 	omp_selector = LogisticOMP(n_nonzero_coefs=n_features_per_class, eps=0.001)
+	if data.has_imputed_features:
+		train_data = data.imputed_features
+	else:
+		train_data = data.features
 	for i, label in enumerate(data.unique_labels):
 		data.relabel(label)
-		omp_selector.partial_fit(data.features, data.relabels)
-		# feat_idx, ranked_features = omp_selector.get_selected_feature_idxs()
-		# all_selections[i, :] = ranked_features
-		# print("ranked features selected for {}: {}".format(label, ranked_features))
-		# print("ranked features selected for {} found".format(label))
+		omp_selector.partial_fit(train_data, data.relabels)
+
 	idxs, _ = omp_selector.get_selected_feature_idxs()
 	
 	
@@ -35,10 +36,10 @@ def select_features(data, target_n_features):
 	return idxs
 
 
-def main(data_path, n_features, n_rows):
+def main(data_path, n_features, n_rows, imputed_features):
 	# print(data_path)
 	# print(n_rows)
-	data = Data(h5_path=data_path, n_rows=n_rows)
+	data = Data(h5_path=data_path, n_rows=n_rows, imputed_feature_path=imputed_features)
 	data.load_data()
 	selected_set = select_features(data, n_features)
 	output_file = '{}_selected_features_from_{}_{}_rows.npy'.format(n_features, data_path.replace('.', '').replace('/', ''), n_rows)
@@ -49,7 +50,10 @@ if __name__ == '__main__':
 	if len(sys.argv) < 3:
 		print('no data path or number of features given')
 	elif len(sys.argv) == 3:
-		main(str(sys.argv[1]), n_features=int(sys.argv[2]), n_rows='all')
+		main(str(sys.argv[1]), n_features=int(sys.argv[2]), n_rows='all', imputed_features=None)
 	elif len(sys.argv) == 4:
 		# print('3 arguments given')
-		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), n_rows=int(sys.argv[3]))
+		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), n_rows=int(sys.argv[3]), imputed_features=None)
+	elif len(sys.argv) == 5:
+		main(data_path=str(sys.argv[1]).strip(), n_features=int(sys.argv[2]), n_rows=int(sys.argv[3]), imputed_features=str(sys.argv[4])
+
