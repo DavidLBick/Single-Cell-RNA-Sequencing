@@ -51,11 +51,12 @@ class LogisticOMP:
 	def update_beta(self):
 		slctd_X = self.X[:, self.G]
 		self.clf.fit(slctd_X, self.y)
-		learned_params = self.clf.coef_
+		learned_params = self.clf.coef_[0]
 		print("learned_params", learned_params)
-		print("weights_
 		weights_idxs, _ = self.get_selected_feature_idxs()
 		for logistic_idx, weight_idx in enumerate(weights_idxs):
+			print("logistic index:", logistic_idx)
+			print("weight_idx:", weight_idx)
 			self.beta[weight_idx] = learned_params[logistic_idx]
 	
 	

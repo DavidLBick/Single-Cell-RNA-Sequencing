@@ -43,7 +43,7 @@ def main(data_path, n_features, n_rows):
 	selected_set = select_features(data, n_features)
 	output_file = '{}_selected_features_from_{}_{}_rows.npy'.format(n_features, data_path.replace('.', '').replace('/', ''), n_rows)
 	np.save(output_file, selected_set)
-	print('selected set saved in {} as a np array (n_classes, features_per_class)'.format(output_file))
+	print('selected set saved in {}'.format(output_file))
 
 if __name__ == '__main__':
 	if len(sys.argv) < 3:
