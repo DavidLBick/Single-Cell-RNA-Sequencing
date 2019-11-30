@@ -38,8 +38,10 @@ class EvalClustering:
         we get there.
         '''
         
-        preds = EvalClustering.__fit_and_predict(algo,X,**algo_kwargs)
+        res = pd.Series({ k:0 for k,_ in eval_strategies.items() })
         
-        return pd.Series({ k:v(y,preds) for k,v in eval_strategies.items() })
-        
+        for i in range(len(iters)):
+            preds = EvalClustering.__fit_and_predict(algo,X,**algo_kwargs)
+            res += pd.Series({ k:v(y,preds) for k,v in eval_strategies.items() })
             
+        return res/iters
