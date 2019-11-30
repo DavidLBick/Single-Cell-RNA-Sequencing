@@ -40,8 +40,21 @@ class EvalClustering:
         
         res = pd.Series({ k:0 for k,_ in eval_strategies.items() })
         
-        for i in range(len(iters)):
+        for i in range(iters):
             preds = EvalClustering.__fit_and_predict(algo,X,**algo_kwargs)
             res += pd.Series({ k:v(y,preds) for k,v in eval_strategies.items() })
             
         return res/iters
+
+class EvalClassification:
+    
+    @staticmethod
+    def evaluate(model,X,y,labels=None):
+        
+        preds = model.predict(X)
+        conf_mat = metrics.confusion_matrix(y,preds)
+        
+        if labels in None:
+            labels = [ 'Class ' + str(i) for i in range(y.max()) ]
+        
+        return {'confusion matrix':pd.DataFrame(conf_mat,index=labels,columns=labels)}
