@@ -48,10 +48,11 @@ def get_dataset(is_train):
         store = pd.HDFStore(config.TEST_DATA_PATH)
         feature_array = config.TEST_DATA_NP_ARRAY
 
-    #features = store['rpkm'] # (21389, 20499)
+    features = store['rpkm'] # (21389, 20499)
     labels = store['labels'] # (21389,)
 
     features = np.load(feature_array)
+
 
     return GeneDataset(features, labels,
                        label_idx_to_str, label_str_to_idx)
