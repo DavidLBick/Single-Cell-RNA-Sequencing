@@ -1,15 +1,16 @@
 import numpy as np
+import sys
 from os.path import basename
 
 def get_file_root_name(file_name):
 	return basename(file_name).split('.')[0]
 
 	
-if __name__ = '__main__':
+if __name__ == '__main__':
 	print('first argument: data path, second argument: indices')
-	npy_data_path = str(argv[1])
+	npy_data_path = str(sys.argv[1])
 	data_name = get_file_root_name(npy_data_path)
-	npy_col_idxs = str(argv[2])
+	npy_col_idxs = str(sys.argv[2])
 	idxs = np.load(npy_col_idxs)
 	idxs_name = get_file_root_name(npy_col_idxs)
 	file_out = data_name + '_filtered_with_' + idxs_name + '.npy'
