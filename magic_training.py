@@ -42,13 +42,16 @@ def test_model(model_file, data):
 	np.save('test_embeddings.npy', embeddings)
 	
 		
-def main(feat_path, label_path, n_rows):
+def main(feat_path, label_path, n_rows, test_path):
 	feats, labels, n_classes = load_data(feat_path, label_path, n_rows)
 	model = create_model(input_sze=feats.shape[1], n_classes=n_classes)
 	model_file = train_model(model)
-	test_model(model_file)
+	test_data = np.load(test_path)
+	test_model(model_file, test_data)
 
 	
 if __name__ == '__main__':
-	main(sys.argv[1], sys.argv[2], sys.argv[3])
+	if len(sys.argv) != 5:
+		print('<train_feature_array.npy> <train_set.hd5> <n_rows> <test_features.npy>')
+	main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 	
