@@ -37,41 +37,24 @@ class Trainer(object):
             print("Model to cuda")
             self.model = self.model.cuda()
 
-    def validation(self, val_loader):
+    def test(self, test_loader):
         correct, epoch_loss, total = 0., 0., 0.
 
         before = time.time()
         print(len(val_loader), "batches of size", self.batch_size)
+        out_embeddings = []
         for batch_idx, (data, label) in enumerate(val_loader):
             if self.GPU: data = data.cuda(); label = label.cuda();
 
             self.optimizer.zero_grad()
-            out = self.model(data)
-            loss = self.criterion(out, label)
-            loss.backward()
-            self.optimizer.step()
-            epoch_loss += loss.item()
+            out = self.model(data, embedding = True)
 
-            forward_res = out.detach().cpu().numpy()
-            label = label.detach().cpu().numpy()
-            predictions = np.argmax(forward_res, axis=1)
+            out_embeddings.append(out)
 
-            batch_correct = np.sum((predictions == label))
-            correct += batch_correct
-            total += data.size(0)
-
-            if batch_idx % 100 == 0:
-                after = time.time()
-                print_stats(batch_idx, after, before,
-                            loss.item(), epoch_loss / (batch_idx+1),
-                            correct / total, WRITE_FILE_FLAG)
-                before = after
-
-        print("Done validating stats:")
-        print("epoch_loss:", epoch_loss/batch_idx+1)
-        print("accuracy:", correct/total)
-        print("\n")
-        return
+        arr = np.array(out_embeddings)
+        out = np.concatenate(arr, axis = 0)
+        np.save("./", out)
+        return out
 
     def train(self, n_epochs, train_loader):
         for epoch in range(n_epochs):
@@ -125,8 +108,8 @@ class Trainer(object):
 
 
 def main():
-    input_size = 20499
-    classes = 46
+    input_size = config.INPUT_SIZE
+    classes = config.N_CLASSES
     neural_net = model.BaselineModel(input_size, classes)
     optim = torch.optim.Adam(neural_net.parameters(),
                              lr = 1e-3)

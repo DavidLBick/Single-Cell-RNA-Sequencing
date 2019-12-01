@@ -1,11 +1,11 @@
 import numpy as np
 import sys
 from os.path import basename
+import sys
 
 def get_file_root_name(file_name):
 	return basename(file_name).split('.')[0]
 
-	
 if __name__ == '__main__':
 	print('first argument: data path, second argument: indices')
 	npy_data_path = str(sys.argv[1])
@@ -16,5 +16,6 @@ if __name__ == '__main__':
 	file_out = data_name + '_filtered_with_' + idxs_name + '.npy'
 	out_data = np.load(npy_data_path)[:, idxs]
 	np.save(file_out, out_data)
+	print('out size:', out_data.shape)	
 	print('file filtered and saved in', file_out)
 	

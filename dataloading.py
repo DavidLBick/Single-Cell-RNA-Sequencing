@@ -19,7 +19,12 @@ class GeneDataset(Data.Dataset):
         self.label_str_to_idx = label_str_to_idx
 
     def __getitem__(self, index):
-        feature = self.features.iloc[index,:]
+        # change behavior for np.array rather than pd DataFrame
+        if isinstance(arr, np.ndarray):
+            feature = self.features[index,:]
+        else:
+            feature = self.features.iloc[index,:]
+
         label_str = self.labels[index]
         label_idx = self.label_str_to_idx[label_str]
 
@@ -33,13 +38,18 @@ class GeneDataset(Data.Dataset):
 ### DATASETS ###
 ################
 def get_dataset(is_train):
+    # we have to get the labels from the HDFStore as before
+    # but now we need to get the features from a numpy array
+    # that Jakob is saving which is the result of the gOMP
     if is_train:
         store = pd.HDFStore(config.TRAIN_DATA_PATH)
     else:
         store = pd.HDFStore(config.TEST_DATA_PATH)
 
-    features = store['rpkm'] # (21389, 20499)
+    #features = store['rpkm'] # (21389, 20499)
     labels = store['labels'] # (21389,)
+
+    features = np.load(config.TRAIN_DATA_NP_ARRAY)
 
     return GeneDataset(features, labels,
                        label_idx_to_str, label_str_to_idx)
