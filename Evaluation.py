@@ -1,5 +1,10 @@
 import sklearn.metrics as metrics
 import pandas as pd
+import sys
+import dataloading
+
+# usage:
+# python Evaluation.py embeddings_path.npy save_results_path.csv
 
 class EvalClustering:
     @staticmethod
@@ -55,3 +60,20 @@ class EvalClassification:
             labels = [ 'Class ' + str(i) for i in range(y.max()) ]
 
         return {'confusion matrix':pd.DataFrame(conf_mat,index=labels,columns=labels)}
+
+
+if __name__ == '__main__':
+    import pdb
+    pdb.set_trace()
+    embeddings_path = sys.argv[2]
+    out_path = sys.argv[3]
+    n_components = 10
+    embeddings = np.load(embeddings_path)
+    true_labels = dataloading.test_dataset.labels
+    res = EvalClustering.evaluate(KMeans,
+                                  embeddings,
+                                  true_labels,
+                                  iters=10,
+                                  n_clusters=n_components)
+    # Write to the output
+    res.to_csv(out_path)
