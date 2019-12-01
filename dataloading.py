@@ -43,13 +43,15 @@ def get_dataset(is_train):
     # that Jakob is saving which is the result of the gOMP
     if is_train:
         store = pd.HDFStore(config.TRAIN_DATA_PATH)
+        feature_array = config.TRAIN_DATA_NP_ARRAY 
     else:
         store = pd.HDFStore(config.TEST_DATA_PATH)
+        feature_array = config.TEST_DATA_NP_ARRAY
 
     #features = store['rpkm'] # (21389, 20499)
     labels = store['labels'] # (21389,)
 
-    features = np.load(config.TRAIN_DATA_NP_ARRAY)
+    features = np.load(feature_array)
 
     return GeneDataset(features, labels,
                        label_idx_to_str, label_str_to_idx)

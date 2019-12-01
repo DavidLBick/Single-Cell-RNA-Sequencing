@@ -116,13 +116,11 @@ def main():
 
     trainer = Trainer(neural_net, optim)
 
-    TRAIN_FLAG = True
-    if TRAIN_FLAG:
+    if config.TRAIN_FLAG:
         trainer.train(config.N_EPOCHS,
                       dataloading.train_loader)
 
-    TEST_FLAG = False
-    if TEST_FLAG:
+    if config.TEST_FLAG:
         trainer.test(dataloading.test_loader)
 
     return
