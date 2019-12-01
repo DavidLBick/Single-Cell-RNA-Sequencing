@@ -20,7 +20,7 @@ class GeneDataset(Data.Dataset):
 
     def __getitem__(self, index):
         # change behavior for np.array rather than pd DataFrame
-        if isinstance(arr, np.ndarray):
+        if isinstance(self.features, np.ndarray):
             feature = self.features[index,:]
         else:
             feature = self.features.iloc[index,:]

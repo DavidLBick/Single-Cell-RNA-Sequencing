@@ -41,20 +41,20 @@ class Trainer(object):
         correct, epoch_loss, total = 0., 0., 0.
 
         before = time.time()
-        print(len(val_loader), "batches of size", self.batch_size)
+        print(len(test_loader), "batches of size", self.batch_size)
         out_embeddings = []
-        for batch_idx, (data, label) in enumerate(val_loader):
+        for batch_idx, (data, label) in enumerate(test_loader):
             if self.GPU: data = data.cuda(); label = label.cuda();
-
-            self.optimizer.zero_grad()
+            data = data.float()
             out = self.model(data, embedding = True)
+            out = out.detach().cpu().numpy()
 
             out_embeddings.append(out)
 
         arr = np.array(out_embeddings)
-        out = np.concatenate(arr, axis = 0)
-        np.save("./", out)
-        return out
+        embeddings = np.concatenate(arr, axis = 0)
+        np.save(config.EMBEDDINGS_OUTPUT_FILE, embeddings)
+        return embeddings
 
     def train(self, n_epochs, train_loader):
         for epoch in range(n_epochs):
