@@ -24,14 +24,14 @@ def select_features(data, target_n_features):
 	
 	all_selections = np.zeros((data.features.shape[1]), dtype=bool)
 	for i, label in enumerate(data.unique_labels):
-		print("selecting features for class {}/{}".format(i, data.unique_labels.size))
+		print("selecting features for class {}/{}".format(i, len(data.unique_labels)))
 		omp_selector = LogisticOMP(n_nonzero_coefs=n_features_per_class, eps=0.001)
 		data.relabel(label)
 		omp_selector.fit(train_data, data.relabels, all_selections)
 		new_selected_features = omp_selector.get_binary_selected_feature_vector()
 		all_selections += new_selected_features
 		print('total amount of features currently selected:', np.nonzero(all_selections)[0].size)
-		temp_filename = "temp_features_{}_outof_{}_classes.npy".format(i, data.unique_labels.size)
+		temp_filename = "temp_features_{}_outof_{}_classes.npy".format(i, len(data.unique_labels))
 		np.save(temp_filename, all_selections)
 		print('temp features saved in:', temp_filename)
 		
