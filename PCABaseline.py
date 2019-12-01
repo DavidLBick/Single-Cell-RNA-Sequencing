@@ -30,7 +30,7 @@ def main(data_path, out_path, n_components):
     print("Testing model...")
     X_test_embeddings = model.transform(X_test)
     # eval sklearn.KMeans embeddings using the true labels
-    pdb.set_trace()
+    #pdb.set_trace()
     res = EvalClustering.evaluate(KMeans,
                                   X_test_embeddings,
                                   y_test,

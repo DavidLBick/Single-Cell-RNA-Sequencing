@@ -4,7 +4,7 @@ import pandas as pd
 class EvalClustering:
     @staticmethod
     def __fit_and_predict(algo,X,**algo_kwargs):
-        preds = algo(**algo_kwargs).fit_transform(X)
+        preds = algo(**algo_kwargs).fit_predict(X)
         return preds
 
     @staticmethod
