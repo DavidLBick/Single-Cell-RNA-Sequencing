@@ -24,7 +24,7 @@ class GeneDataset(Data.Dataset):
             feature = self.features[index,:]
         else:
             feature = self.features.iloc[index,:]
-            
+
         label_str = self.labels[index]
         label_idx = self.label_str_to_idx[label_str]
 
