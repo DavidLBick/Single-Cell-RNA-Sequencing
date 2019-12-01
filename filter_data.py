@@ -4,6 +4,7 @@ from os.path import basename
 def get_file_root_name(file_name):
 	return basename(file_name).split('.')[0]
 
+	
 if __name__ = '__main__':
 	print('first argument: data path, second argument: indices')
 	npy_data_path = str(argv[1])

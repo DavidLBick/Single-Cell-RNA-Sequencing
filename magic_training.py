@@ -48,6 +48,7 @@ def main(feat_path, label_path, n_rows):
 	model_file = train_model(model)
 	test_model(model_file)
 
+	
 if __name__ == '__main__':
 	main(sys.argv[1], sys.argv[2], sys.argv[3])
 	
