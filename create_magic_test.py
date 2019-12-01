@@ -1,6 +1,5 @@
 import magic
 import sys
-from data import Data
 import numpy as np
 import pandas as pd
 
@@ -15,7 +14,7 @@ def concat(train_path, test_path):
 	return combined_features, train_len
 
 	
-def magic(dataframe):
+def do_magic(dataframe):
 	magic_operator = magic.MAGIC()
 	magic_set = magic_operator.fit_transform(dataframe)
 	return magic_set
@@ -23,8 +22,8 @@ def magic(dataframe):
 	
 def main(train_path, test_path):
 	combined_features, train_len = concat(train_path, test_path)
-	imputed_set = magic(combined_features)
-	imputed_test_set = imputed_set[train_len:, :]
+	imputed_set = do_magic(combined_features)
+	imputed_test_set = imputed_set.iloc[train_len:, :].to_numpy()
 	filename = 'magic_imputed_test_set.npy'
 	np.save(filename, imputed_test_set)
 	print('file saved in:', filename)
