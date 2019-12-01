@@ -108,8 +108,8 @@ class Trainer(object):
 
 
 def main():
-    input_size = 20499
-    classes = 46
+    input_size = config.INPUT_SIZE
+    classes = config.N_CLASSES
     neural_net = model.BaselineModel(input_size, classes)
     optim = torch.optim.Adam(neural_net.parameters(),
                              lr = 1e-3)
