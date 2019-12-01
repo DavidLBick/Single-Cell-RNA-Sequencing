@@ -51,9 +51,10 @@ class Trainer(object):
 
             out_embeddings.append(out)
 
-        out_embeddings = np.array(out_embeddings).flatten()
-        np.save("./", out_embeddings)
-        return out_embeddings
+        arr = np.array(out_embeddings)
+        out = np.concatenate(arr, axis = 0)
+        np.save("./", out)
+        return out
 
     def train(self, n_epochs, train_loader):
         for epoch in range(n_epochs):
