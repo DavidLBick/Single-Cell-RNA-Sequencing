@@ -1,15 +1,16 @@
 import numpy as np
 import torch
+import torch.nn as nn
 import os
-import config 
-import dataloading 
-import model 
+import config
+import dataloading
+import model
 import pdb
 import time
 import matplotlib.pyplot as plt
 import csv
 
-def print_stats(batch_idx, after, before, 
+def print_stats(batch_idx, after, before,
                 batch_loss, running_loss, accuracy,
                 batch_accuracy):
     print("Stats: batch %d" % batch_idx)
@@ -29,10 +30,10 @@ class Trainer(object):
         self.model = model
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optimizer
-        self.GPU = torch.cuda.is_available() 
+        self.GPU = torch.cuda.is_available()
         self.batch_size = config.BATCH_SIZE
-       
-        if self.gpu:
+
+        if self.GPU:
             print("Model to cuda")
             self.model = self.model.cuda()
 
@@ -42,7 +43,7 @@ class Trainer(object):
         before = time.time()
         print(len(val_loader), "batches of size", self.batch_size)
         for batch_idx, (data, label) in enumerate(val_loader):
-            if self.gpu: data = data.cuda(); label = label.cuda();
+            if self.GPU: data = data.cuda(); label = label.cuda();
 
             self.optimizer.zero_grad()
             out = self.model(data)
@@ -61,8 +62,8 @@ class Trainer(object):
 
             if batch_idx % 100 == 0:
                 after = time.time()
-                print_stats(batch_idx, after, before, 
-                            loss.item(), epoch_loss / (batch_idx+1), 
+                print_stats(batch_idx, after, before,
+                            loss.item(), epoch_loss / (batch_idx+1),
                             correct / total, WRITE_FILE_FLAG)
                 before = after
 
@@ -70,10 +71,9 @@ class Trainer(object):
         print("epoch_loss:", epoch_loss/batch_idx+1)
         print("accuracy:", correct/total)
         print("\n")
-        return 
+        return
 
-
-    def train(self, n_epochs, train_loader, val_loader, val_flag):
+    def train(self, n_epochs, train_loader):
         for epoch in range(n_epochs):
             correct, epoch_loss, total = 0., 0., 0.
 
@@ -83,7 +83,9 @@ class Trainer(object):
                 if batch_idx == 0:
                     one_before = time.time()
 
-                if self.gpu:
+                data = data.float()
+
+                if self.GPU:
                     data = data.cuda()
                     label = label.cuda()
 
@@ -109,44 +111,40 @@ class Trainer(object):
 
                 if batch_idx % 100 == 0:
                     after = time.time()
-                    print_stats(batch_idx, after, before, 
-                                loss.item(), epoch_loss / (batch_idx+1), 
-                                correct / total, 
+                    print_stats(batch_idx, after, before,
+                                loss.item(), epoch_loss / (batch_idx+1),
+                                correct / total,
                                 float(batch_correct / self.batch_size))
                     before = after
 
-            torch.save(self.model, config.MODELS_PATH + 
-                                   config.SAVE_MODEL_NAME + 
+            torch.save(self.model, config.MODELS_PATH +
+                                   config.SAVE_MODEL_NAME +
                                    ' epoch%d' % epoch)
-            if val_flag:
-                self.validation(val_loader)
 
-        return 
+        return
 
 
 def main():
-    model = model.Baseline_Model()
-    optim = torch.optim.Adam(model.parameters(), 
+    input_size = 20499
+    classes = 46
+    neural_net = model.BaselineModel(input_size, classes)
+    optim = torch.optim.Adam(neural_net.parameters(),
                              lr = 1e-3)
 
-    trainer = Trainer(model, optim)
+    trainer = Trainer(neural_net, optim)
 
     TRAIN_FLAG = True
-    VAL_FLAG = True
     if TRAIN_FLAG:
-        trainer.train(config.N_EPOCHS, 
-                      dataloading.train_loader, 
-                      dataloading.val_loader,
-                      VAL_FLAG)
-    
+        trainer.train(config.N_EPOCHS,
+                      dataloading.train_loader)
+
     TEST_FLAG = False
     if TEST_FLAG:
         trainer.test(dataloading.test_loader)
 
-    return 
+    return
 
 
 
 if __name__ == '__main__':
     main()
-
