@@ -22,7 +22,9 @@ def do_magic(dataframe):
 	
 def main(train_path, test_path):
 	combined_features, train_len = concat(train_path, test_path)
+	print('combined features shape:', combined_features.shape)
 	imputed_set = do_magic(combined_features)
+	print('size imputed:', imputed_set.shape)
 	imputed_test_set = imputed_set.iloc[train_len:, :].to_numpy()
 	filename = 'magic_imputed_test_set.npy'
 	np.save(filename, imputed_test_set)

@@ -75,8 +75,6 @@ train_loader = Data.DataLoader(train_dataset,
 
 test_dataset = get_dataset(is_train=False)
 test_loader = Data.DataLoader(test_dataset,
-                             batch_size = config.BATCH_SIZE,
-                             shuffle = True,
-                             drop_last = True)
+                             batch_size = config.BATCH_SIZE)
 
 print("dataloading.py done!")
