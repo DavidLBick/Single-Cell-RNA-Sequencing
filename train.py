@@ -43,17 +43,24 @@ class Trainer(object):
         before = time.time()
         print(len(test_loader), "batches of size", self.batch_size)
         out_embeddings = []
+        out_clf = []
         for batch_idx, (data, label) in enumerate(test_loader):
             if self.GPU: data = data.cuda(); label = label.cuda();
             data = data.float()
             out = self.model(data, embedding = True)
             out = out.detach().cpu().numpy()
-
+            out_logits = self.model(data, embedding = False)
+            out_logits = out_logits.detach().cpu().numpy()
+            out_labels = np.argmax(out_logits, axis=1)
+            out_clf.append(out_labels)
             out_embeddings.append(out)
 
         arr = np.array(out_embeddings)
         embeddings = np.concatenate(arr, axis = 0)
         np.save(config.EMBEDDINGS_OUTPUT_FILE, embeddings)
+        labels = np.concatenate(out_clf, axis = 0)
+        # labels = np.array(out_clf)
+        np.save(config.LABELS_OUTPUT_FILE, labels)
         return embeddings
 
     def train(self, n_epochs, train_loader):
