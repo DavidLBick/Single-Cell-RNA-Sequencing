@@ -1,6 +1,7 @@
 import pandas as pd
 from missingpy import KNNImputer
 import numpy as np
+import config
 
 class KNN_impute:
         
@@ -60,8 +61,14 @@ def run_imputation(train_path, test_path=None):
     
     np.save(name, X_transformed)
     
+def run_imputation_direct():
     
-
+    train_path = config.TRAIN_DATA_PATH
+    test_path = config.TEST_DATA_PATH
+    
+    run_imputation(train_path)
+    run_imputation(train_path,test_path)    
+    
 if __name__ == '__main__':
     
     
