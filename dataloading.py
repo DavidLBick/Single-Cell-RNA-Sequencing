@@ -63,9 +63,15 @@ labels = store['labels']
 uniques = np.sort(np.unique(labels))
 label_idx_to_str = dict()
 label_str_to_idx = dict()
+label_order = []
 for idx, str in enumerate(uniques):
+    label_order.append(str)
     label_idx_to_str[idx] = str
     label_str_to_idx[str] = idx
+
+label_order_array = np.array(label_order)
+np.save('labels_in_order.npy', label_order_array)
+print('labels saved')
 
 train_dataset = get_dataset(is_train=True)
 train_loader = Data.DataLoader(train_dataset,
