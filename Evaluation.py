@@ -2,6 +2,8 @@ import sklearn.metrics as metrics
 import pandas as pd
 import sys
 import dataloading
+import numpy as np
+from sklearn.cluster import KMeans
 
 # usage:
 # python Evaluation.py embeddings_path.npy save_results_path.csv
@@ -60,7 +62,16 @@ class EvalClassification:
             labels = [ 'Class ' + str(i) for i in range(y.max()) ]
 
         return {'confusion matrix':pd.DataFrame(conf_mat,index=labels,columns=labels)}
+    
+    @staticmethod
+    def evaluate_direct(y_true,y_preds,labels=None):
 
+        conf_mat = metrics.confusion_matrix(y_true,y_preds)
+
+        if labels in None:
+            labels = [ 'Class ' + str(i) for i in range(y_true.max()) ]
+
+        return {'confusion matrix':pd.DataFrame(conf_mat,index=labels,columns=labels)}
 
 if __name__ == '__main__':
     import pdb
