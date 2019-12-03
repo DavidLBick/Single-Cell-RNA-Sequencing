@@ -34,7 +34,7 @@ class KNN_impute:
         '''
     
     def transform(self,X):
-        return self.imputer.transform(X)
+        return self.imputer.transform(KNN_impute.remove_rows(X))
 
 def load_df(path):
     store = pd.HDFStore(path)
