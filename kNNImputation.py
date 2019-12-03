@@ -10,14 +10,9 @@ class KNN_impute:
         self.missing_val_rep = missing_val_rep
         self.imputer = KNNImputer(missing_val_rep,k,copy=copy,col_max_missing=1.0, row_max_missing=01.0)
     
-    @staticmethod
-    def remove_rows(X):
-        
-        return X.drop(index=X.index[(X==0).all(axis=1)])
-    
     def fit(self,X,y):
         
-        self.imputer.fit(KNN_impute.remove_rows(X))        
+        self.imputer.fit(X)        
         return None
         '''
         def add_median(df):
@@ -34,7 +29,11 @@ class KNN_impute:
         '''
     
     def transform(self,X):
-        return self.imputer.transform(KNN_impute.remove_rows(X))
+        return self.imputer.transform(X)
+
+def remove_rows(X,y):
+    to_drop = X.index[(X==0).all(axis=1)]         
+    return X.drop(index=to_drop), y.drop(to_drop)
 
 def load_df(path):
     store = pd.HDFStore(path)
@@ -53,21 +52,25 @@ def split_sets(X,y,l1):
 def run_imputation(train_path, test_path=None):
     
     name = '../data/kNNImputedTrain.npy'
-    X, y = load_df(train_path)
+    name_y = '../data/kNNImputedTrain_y.npy'
+    X, y = remove_rows(*load_df(train_path))
     
     if test_path is not None:
         l1 = len(X)
-        X, y = join_sets(X,y,*load_df(test_path))
+        X, y = join_sets(X,y,remove_rows(*load_df(test_path)))
         name = '../data/kNNImputedTest.npy'
+        name_y = '../data/kNNImputedTest_y.npy'
     
     imputer = KNN_impute()
     imputer.fit(X,y)
     X_transformed = imputer.transform(X)
+    y_transformed = y
     
     if test_path is not None:
-        _, _, X_transformed, _  = split_sets(X,y,l1)
+        _, _, X_transformed, y_transformed  = split_sets(X,y,l1)
     
     np.save(name, X_transformed)
+    np.save(name_y, y_transformed)
     
 def run_imputation_direct():
     
