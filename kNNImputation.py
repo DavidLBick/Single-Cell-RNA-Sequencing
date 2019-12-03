@@ -12,7 +12,9 @@ class KNN_impute:
     
     def fit(self,X,y):
         
+        print('INSIDE IMPUTER: Beginning the fit')
         self.imputer.fit(X)        
+        print('INSIDE IMPUTER: Completed the fit')
         return None
         '''
         def add_median(df):
@@ -54,6 +56,7 @@ def run_imputation(train_path, test_path=None):
     name = '../data/kNNImputedTrain.npy'
     name_y = '../data/kNNImputedTrain_y.npy'
     X, y = remove_rows(*load_df(train_path))
+    print('Data Loaded')
     
     if test_path is not None:
         l1 = len(X)
@@ -63,23 +66,43 @@ def run_imputation(train_path, test_path=None):
     
     imputer = KNN_impute()
     imputer.fit(X,y)
+    print('Completed the imputer fit')
+    
     X_transformed = imputer.transform(X)
     y_transformed = y
+    
+    print('Completed Transformation')
     
     if test_path is not None:
         _, _, X_transformed, y_transformed  = split_sets(X,y,l1)
     
+    print('Beginning to save')
     np.save(name, X_transformed)
     np.save(name_y, y_transformed)
+    print('Completed saving')
     
 def run_imputation_direct():
     
     train_path = config.TRAIN_DATA_PATH
     test_path = config.TEST_DATA_PATH
-    
+
+    print('Running imputation for train')    
     run_imputation(train_path)
+    print('Running imputation for test')
     run_imputation(train_path,test_path)    
+
+def test_median_calculation():
     
+    train_path = config.TRAIN_DATA_PATH
+    X, y = load_df(train_path)
+    print('Data Loaded')
+    
+    X, y = remove_rows(X,y)
+    X['labels'] = y
+    
+    print(X.groupby(by='labels')).median()
+    
+
 if __name__ == '__main__':
     
     
