@@ -8,10 +8,18 @@ class KNN_impute:
     def __init__(self,missing_val_rep=0.0, k = 1, copy = False):
         
         self.missing_val_rep = missing_val_rep
-        self.imputer = KNNImputer(missing_val_rep,k,copy=copy)
+        self.imputer = KNNImputer(missing_val_rep,k,copy=copy,col_max_missing=1.0, row_max_missing=01.0)
+    
+    @staticmethod
+    def remove_rows(X):
+        
+        return X.drop(index=X.index[(X==0).all(axis=1)])
     
     def fit(self,X,y):
         
+        self.imputer.fit(KNN_impute.remove_rows(X))        
+        return None
+        '''
         def add_median(df):
             medians = df.median(axis=0)
             return df.replace(self.missing_val_rep, medians.to_dict())
@@ -23,7 +31,7 @@ class KNN_impute:
         X_median.drop(columns=['labels'],inplace=True)
 
         self.imputer.fit(X_median)
-        
+        '''
     
     def transform(self,X):
         return self.imputer.transform(X)
@@ -44,13 +52,13 @@ def split_sets(X,y,l1):
     
 def run_imputation(train_path, test_path=None):
     
-    name = 'kNNImputedTrain.npy'
+    name = '../data/kNNImputedTrain.npy'
     X, y = load_df(train_path)
     
     if test_path is not None:
         l1 = len(X)
         X, y = join_sets(X,y,*load_df(test_path))
-        name = 'kNNImputedTest.npy'
+        name = '../data/kNNImputedTest.npy'
     
     imputer = KNN_impute()
     imputer.fit(X,y)
