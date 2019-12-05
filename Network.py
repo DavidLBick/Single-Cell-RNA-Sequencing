@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 
 def apply(x,funcs):
+
     for f in funcs:
         x = f(x)
     return x
@@ -58,7 +59,7 @@ class Autoencoder:
         
         in_features = Autoencoder.get_linear_infeatures(dataloader,feature_transformer)
         fc = nn.Linear(in_features=in_features,out_features=hidden_layer_features)
-        
+        fc.double()
         return fc, Autoencoder.combine_transformers(fc,feature_transformer,op_transformer), 0.0 
     
     @staticmethod
@@ -70,13 +71,13 @@ class Autoencoder:
         in_features = Autoencoder.get_linear_infeatures(dataloader,feature_transformer)
         
         model = LinearAutoencoder(in_features,hidden_layer_features,op_transformer)
-        
+        model.double()
         optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=weight_decay)
         loss_func = F.mse_loss        
         
         total_loss = Autoencoder.train(model,loss_func,optimizer,epoch,dataloader,feature_transformer)
         fc = model.fc1
-        
+        fc.double()
         return fc, Autoencoder.combine_transformers(fc,feature_transformer,op_transformer), total_loss
     
     @staticmethod
@@ -84,7 +85,7 @@ class Autoencoder:
         lr=0.01
         loss_func = F.mse_loss
         optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=weight_decay)
-        epoch = 5
+        epoch = 10
         feature_transformer = lambda x: x
         
         Autoencoder.train(model,loss_func,optimizer,epoch,dataloader,feature_transformer)

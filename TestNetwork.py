@@ -301,5 +301,5 @@ def write_excel(w_after,w_before,train_res):
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
 
-res = train_2(model_list)
+#res = train_2(model_list)
 #write_excel(*res)

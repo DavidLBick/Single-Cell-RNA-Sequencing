@@ -172,7 +172,7 @@ def construct_model(layer_params_,train_set,flag,weight_decay=0):
     
 def train_test(models,train_set):
     
-    epoch, lr = 5, 0.01
+    epoch, lr = 20, 0.01
     
     train_loader = torch.utils.data.DataLoader(train_set,batch_size=1000)
     optimizers = [ optim.Adam(m.parameters(), lr=lr) for _,m in models ]
