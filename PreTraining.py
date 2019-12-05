@@ -341,14 +341,14 @@ if __name__ == '__main__':
     
     layer_param = generate_layer_dic(int(hn))
     
-    model_list = [[1,'No Pretraining_0',0,0.0005],
-                  [1,'No Pretraining_0',0,0.0001],
-                  [0,'Stacked Autoencoder Pretraining_0003_0001',0.0003,0.0001],
-                  [0,'Stacked Autoencoder Pretraining_001_0001',0.001,0.0001],
-                  [0,'Stacked Autoencoder Pretraining_003_0001',0.003,0.0001],
-                  [0,'Stacked Autoencoder Pretraining_0003_0005',0.0003,0.0005],
-                  [0,'Stacked Autoencoder Pretraining_001_0005',0.001,0.0005],
-                  [0,'Stacked Autoencoder Pretraining_003_0005',0.003,0.0005]]
+    model_list = [[1,'No Pretraining_0',0,0.005],
+                  [1,'No Pretraining_0',0,0.001],
+                  [0,'Stacked Autoencoder Pretraining_0003_001',0.0003,0.001],
+                  [0,'Stacked Autoencoder Pretraining_001_001',0.001,0.001],
+                  [0,'Stacked Autoencoder Pretraining_003_001',0.003,0.001],
+                  [0,'Stacked Autoencoder Pretraining_0003_005',0.0003,0.005],
+                  [0,'Stacked Autoencoder Pretraining_001_005',0.001,0.005],
+                  [0,'Stacked Autoencoder Pretraining_003_005',0.003,0.005]]
     
     res = train_2(model_list,layer_param)
     write_excel(*res)
