@@ -78,7 +78,7 @@ if __name__ == '__main__':
     pdb.set_trace()
     embeddings_path = sys.argv[2]
     out_path = sys.argv[3]
-    n_components = 10
+    n_components = 46
     embeddings = np.load(embeddings_path)
     true_labels = dataloading.test_dataset.labels
     res = EvalClustering.evaluate(KMeans,
