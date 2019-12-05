@@ -5,8 +5,6 @@ import torch.optim as optim
 import torch.nn.functional as F
 from tqdm import tqdm
 
-# Within the init function of the neural network to be costructed we can call this to create the initialized layers
-
 def apply(x,funcs):
     for f in funcs:
         x = f(x)
@@ -40,8 +38,9 @@ class Autoencoder:
     
     @staticmethod
     def add_noise(X):
-        return X*torch.tensor(np.random.choice([0,1],size=X.shape,replace=True, p=[0.6,0.4]))
-    
+        return X*torch.tensor(np.random.choice([0,1],size=X.shape,replace=True, p=[0.3,0.7]))
+        #return X
+        
     @staticmethod
     def get_linear_infeatures(dataloader,feature_transformer):
         X, _ = next(iter(dataloader))
@@ -63,7 +62,7 @@ class Autoencoder:
         return fc, Autoencoder.combine_transformers(fc,feature_transformer,op_transformer), 0.0 
     
     @staticmethod
-    def get_linear_layer(dataloader,hidden_layer_features,op_transformer,feature_transformer=lambda x: x):
+    def get_linear_layer(dataloader,hidden_layer_features,op_transformer,feature_transformer=lambda x: x,weight_decay=0):
         
         epoch = 5
         lr = 0.01
@@ -72,7 +71,7 @@ class Autoencoder:
         
         model = LinearAutoencoder(in_features,hidden_layer_features,op_transformer)
         
-        optimizer = optim.Adam(model.parameters(),lr=lr)
+        optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=weight_decay)
         loss_func = F.mse_loss        
         
         total_loss = Autoencoder.train(model,loss_func,optimizer,epoch,dataloader,feature_transformer)
@@ -81,10 +80,10 @@ class Autoencoder:
         return fc, Autoencoder.combine_transformers(fc,feature_transformer,op_transformer), total_loss
     
     @staticmethod
-    def train_autoencoder(model,dataloader):
+    def train_autoencoder(model,dataloader,weight_decay=0):
         lr=0.01
         loss_func = F.mse_loss
-        optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=1)
+        optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=weight_decay)
         epoch = 5
         feature_transformer = lambda x: x
         
@@ -144,7 +143,9 @@ class DAE_NN(nn.Module):
         super(DAE_NN, self).__init__()
         self.layers = layers
         for l in layers:
+            #l['obj'].weight = nn.Parameter((l['obj'].weight/l['obj'].weight.std())*np.sqrt(2/l['obj'].in_features))
             setattr(self,l['name'],l['obj'])
+
     
     def forward(self,X):
         
@@ -156,7 +157,7 @@ class DAE_NN(nn.Module):
         return X
     
     @staticmethod
-    def construct_simultaneous(layer_params,dataloader):
+    def construct_simultaneous(layer_params,dataloader,weight_decay=0):
         #layer_params = layer_params_.copy()
         layers = DAE_NN.construct_random_helper(layer_params,dataloader)
         
@@ -172,7 +173,7 @@ class DAE_NN(nn.Module):
         #print('*******')
         #print(layers)
         temp_model = DAE_NN(layers)
-        Autoencoder.train_autoencoder(temp_model,dataloader)
+        Autoencoder.train_autoencoder(temp_model,dataloader,weight_decay=weight_decay)
         
         for l in layers:
             l['obj'] = getattr(temp_model,l['name'])
@@ -199,16 +200,16 @@ class DAE_NN(nn.Module):
         return DAE_NN(DAE_NN.construct_random_helper(layer_params,dataloader))
     
     @staticmethod
-    def construct(layer_params,dataloader):
+    def construct(layer_params,dataloader,weight_decay=0):
         #layer_params = layer_params_.copy()
         next_transformer = lambda x: x #.flatten(start_dim=1)
         
         for l in layer_params:
 
             print('Training Layer',l['name'],': Begin')
-            init_layer, next_transformer, init_loss = Autoencoder.get_linear_layer(dataloader,l['out_features'],l['transformer'],feature_transformer=next_transformer)
+            init_layer, next_transformer, init_loss = Autoencoder.get_linear_layer(dataloader,l['out_features'],l['transformer'],feature_transformer=next_transformer,weight_decay=weight_decay)
             print('Training Layer',l['name'],': End')
             l['obj'] = init_layer
         
         return DAE_NN(layer_params)
-        
+        #return nn.Sequential( *[ y for x in [ [ l['obj'] ] + l['transformer']  for l in layer_params ] for y in x ] )

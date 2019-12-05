@@ -2,20 +2,34 @@ import pandas as pd
 from missingpy import KNNImputer
 import numpy as np
 import config
+from tqdm import tqdm
 
 class KNN_impute:
         
-    def __init__(self,missing_val_rep=0.0, k = 1, copy = False):
+    def __init__(self,missing_val_rep=0.0, k = 10, copy = False):
         
         self.missing_val_rep = missing_val_rep
         self.imputer = KNNImputer(missing_val_rep,k,copy=copy,col_max_missing=1.0, row_max_missing=01.0)
+
+    
+    def add_medians(self,X,y):
+        
+        X['labels'] = y
+        label_meds = remove_rows(X).groupby(by='labels').median()
+        #print(label_meds)
+        for l in tqdm(label_meds.index):
+            X[X['labels']==l] = X[X['labels']==l].replace(self.missing_val_rep,label_meds.loc[l,:].to_dict())
+        
+        X.drop(columns=['labels'],inplace=True)
     
     def fit(self,X,y):
         
+        self.add_medians(X,y)
         print('INSIDE IMPUTER: Beginning the fit')
         self.imputer.fit(X)        
         print('INSIDE IMPUTER: Completed the fit')
         return None
+        
         '''
         def add_median(df):
             medians = df.median(axis=0)
@@ -33,8 +47,12 @@ class KNN_impute:
     def transform(self,X):
         return self.imputer.transform(X)
 
-def remove_rows(X,y):
+def remove_rows(X,y=None):
     to_drop = X.index[(X==0).all(axis=1)]         
+    
+    if y is None:
+        return X.drop(index=to_drop)
+        
     return X.drop(index=to_drop), y.drop(to_drop)
 
 def load_df(path):
@@ -100,7 +118,7 @@ def test_median_calculation():
     X, y = remove_rows(X,y)
     X['labels'] = y
     
-    print(X.groupby(by='labels')).median()
+    print(X.groupby(by='labels').median())
     
 
 if __name__ == '__main__':
@@ -118,11 +136,11 @@ if __name__ == '__main__':
     y = pd.Series([1,1,1,1,0,0,0,0])
     
     obj = KNN_impute(0,2,copy=True)
-    obj.fit(X,y)
+    obj.add_medians(X,y)
     #print(X)
     #print(obj)
-    print(obj.transform(X))
-    
+    #print(obj.transform(X))
+    print(X)
     
     #run_imputation('blah','blah')
     
