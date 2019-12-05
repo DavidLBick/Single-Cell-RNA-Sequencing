@@ -12,6 +12,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import dataloading
+import sys
 
 def get_layerwise_weight_dist(model):
     data, cols = [], []
@@ -83,13 +84,13 @@ layer_params_2 = [
             'out_features': 1005
         },
         {
-            'name': 'fc1',
+            'name': 'fc2',
             'type': 0,
             'transformer': [nn.ReLU()],
             'out_features': 1000
         },
         {
-            'name': 'fc1',
+            'name': 'fc3',
             'type': 0,
             'transformer': [nn.ReLU()],
             'out_features': 1000
@@ -172,9 +173,9 @@ def construct_model(layer_params_,train_set,flag,weight_decay=0):
     
 def train_test(models,train_set):
     
-    epoch, lr = 20, 0.01
+    epoch, lr = 10, 0.001
     
-    train_loader = torch.utils.data.DataLoader(train_set,batch_size=1000)
+    train_loader = torch.utils.data.DataLoader(train_set,batch_size=64)
     optimizers = [ optim.Adam(m.parameters(), lr=lr) for _,m in models ]
     
 #    optimizer1 = optim.Adam(model1.parameters(), lr=lr)
@@ -184,7 +185,7 @@ def train_test(models,train_set):
     
     res = []
     
-    plt.figure(figsize=(10,7))
+    #plt.figure(figsize=(10,7))
     for j in range(epoch):
 #        total_loss1, total_correct1 = 0, 0
 #        total_loss2, total_correct2 = 0, 0        
@@ -261,16 +262,9 @@ get_layerwise_weight_dist(model_random)
 #print('\n\n**** Layerwise weight distribution after training ****')
 #get_layerwise_weight_dist(models[0][1])
 
-model_list = [[1,'No Pretraining_0',0],
-              #[0,'Stacked Autoencoder Pretraining_0',0],
-              #[0,'Stacked Autoencoder Pretraining_00003',0.0002],
-              #[0,'Stacked Autoencoder Pretraining_00005',0.00025],
-              [0,'Stacked Autoencoder Pretraining_00003',0.0003],
-              #[0,'Stacked Autoencoder Pretraining_0001',0.00035],
-              #[0,'Stacked Autoencoder Pretraining_0003',0.0004],
-              [0,'Stacked Autoencoder Pretraining_003',0.003]]
 
-def train_2(model_list):
+
+def train_2(model_list,layer_param):
 
     w_after_total = []
     w_before_total = []
@@ -279,7 +273,7 @@ def train_2(model_list):
     #for t, m_name in enumerate(['Stacked Autoencoder Pretraining','No Pretraining Network','End-to-End Autoencoder Pretraining']):
     for t, m_name, weight_decay in model_list:
         
-        model = construct_model(layer_params_1,train_set,t,weight_decay)
+        model = construct_model(layer_param,train_set,t,weight_decay)
         models = [(m_name,model)]
         
         print('\n\n**** Layerwise weight distribution before training ****')
@@ -315,5 +309,46 @@ def write_excel(w_after,w_before,train_res):
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
 
-res = train_2(model_list)
-write_excel(*res)
+def generate_layer_dic(n):
+    
+    layer_param = [{
+                'name': 'fc1',
+                'type': 0,
+                'transformer': [nn.ReLU()],
+                'out_features': 1005
+            }]
+    
+    for i in range(n):
+        layer_param.append({
+                'name': 'fc'+str(i+2),
+                'type': 0,
+                'transformer': [nn.ReLU()],
+                'out_features': 1000
+            })
+    
+    layer_param.append({
+                'name': 'out',
+                'type': 0,
+                'transformer': [],
+                'out_features': 100
+            })
+    
+    return layer_param
+    
+if __name__ == '__main__':
+    
+    hn, lr, epoch = sys.argv[1:3]
+    
+    layer_param = generate_layer_dic(hn)
+    
+    model_list = [[1,'No Pretraining_0',0],
+                  #[0,'Stacked Autoencoder Pretraining_0',0],
+                  #[0,'Stacked Autoencoder Pretraining_00003',0.0002],
+                  #[0,'Stacked Autoencoder Pretraining_00005',0.00025],
+                  [0,'Stacked Autoencoder Pretraining_00003',0.0003],
+                  #[0,'Stacked Autoencoder Pretraining_0001',0.00035],
+                  #[0,'Stacked Autoencoder Pretraining_0003',0.0004],
+                  [0,'Stacked Autoencoder Pretraining_003',0.003]]
+    
+    res = train_2(model_list,layer_param)
+    write_excel(*res)
