@@ -43,8 +43,8 @@ class Data:
 		self.labels = labels.to_numpy()
 		self.unique_labels = unique_labels
 		self.n_classes = len(self.unique_labels)
-		create_integer_labels()
-		create_one_hot_labels()
+		self.create_integer_labels()
+		self.create_one_hot_labels()
 		print("{} rows data loaded".format(self.n_rows))
 		return self.features, self.labels, self.unique_labels
 	
