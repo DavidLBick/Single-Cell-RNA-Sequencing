@@ -58,7 +58,7 @@ class Data:
 			self.label_idx_to_str[idx] = str
 			self.label_str_to_idx[str] = idx
 		
-		self.int_labels = np.empty((self.labels.shape[0]), type=np.int16)
+		self.int_labels = np.empty((self.labels.shape[0]), dtype=np.int16)
 		for idx, label in enumerate(self.labels):
 			self.int_labels[idx] = self.label_str_to_idx[label]
 		
