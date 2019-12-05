@@ -149,7 +149,7 @@ layer_params_1 = [
     ]
 
 
-def construct_model(layer_params_,train_set,flag,weight_decay=0):
+def construct_model(layer_params_,train_set,flag,weight_decay=0,lr=0.001):
     
     layer_params = copy.deepcopy(layer_params_)
     train_loader = torch.utils.data.DataLoader(train_set,batch_size=1000)
@@ -159,23 +159,23 @@ def construct_model(layer_params_,train_set,flag,weight_decay=0):
     if flag==0:
         # Prepare data
         print('Constructing Stacked Autoencoder Pretraining NN')
-        model = DAE_NN.construct(layer_params,train_loader,weight_decay)
+        model = DAE_NN.construct(layer_params,train_loader,weight_decay,lr)
     elif flag==1:
         print('Constructing No Pretrainig NN')
         model = DAE_NN.construct_random(layer_params,train_loader)
     else:
         print('Constructing End-to-End Autoencoder Pretraining NN')
-        model = DAE_NN.construct_simultaneous(layer_params,train_loader,weight_decay)
+        model = DAE_NN.construct_simultaneous(layer_params,train_loader,weight_decay,lr)
     
     print('********* Model Constructed *******\n\n')
     
     return model
     
-def train_test(models,train_set):
+def train_test(models,train_set,lr):
     
-    epoch, lr = 10, 0.001
+    epoch = 15
     
-    train_loader = torch.utils.data.DataLoader(train_set,batch_size=64)
+    train_loader = torch.utils.data.DataLoader(train_set,batch_size=1000)
     optimizers = [ optim.Adam(m.parameters(), lr=lr) for _,m in models ]
     
 #    optimizer1 = optim.Adam(model1.parameters(), lr=lr)
@@ -271,16 +271,16 @@ def train_2(model_list,layer_param):
     train_res_total = []
     
     #for t, m_name in enumerate(['Stacked Autoencoder Pretraining','No Pretraining Network','End-to-End Autoencoder Pretraining']):
-    for t, m_name, weight_decay in model_list:
+    for t, m_name, weight_decay, lr in model_list:
         
-        model = construct_model(layer_param,train_set,t,weight_decay)
+        model = construct_model(layer_param,train_set,t,weight_decay,lr)
         models = [(m_name,model)]
         
         print('\n\n**** Layerwise weight distribution before training ****')
         w_before = get_layerwise_weight_dist(models[0][1])
         w_before['Pretraining'] = models[0][0]
         
-        train_res = train_test(models,train_set)
+        train_res = train_test(models,train_set,lr)
         
         print('\n\n**** Layerwise weight distribution after training ****')
         w_after = get_layerwise_weight_dist(models[0][1])
@@ -337,18 +337,18 @@ def generate_layer_dic(n):
     
 if __name__ == '__main__':
     
-    hn, lr, epoch = sys.argv[1:3]
+    hn = sys.argv[1]
     
-    layer_param = generate_layer_dic(hn)
+    layer_param = generate_layer_dic(int(hn))
     
-    model_list = [[1,'No Pretraining_0',0],
-                  #[0,'Stacked Autoencoder Pretraining_0',0],
-                  #[0,'Stacked Autoencoder Pretraining_00003',0.0002],
-                  #[0,'Stacked Autoencoder Pretraining_00005',0.00025],
-                  [0,'Stacked Autoencoder Pretraining_00003',0.0003],
-                  #[0,'Stacked Autoencoder Pretraining_0001',0.00035],
-                  #[0,'Stacked Autoencoder Pretraining_0003',0.0004],
-                  [0,'Stacked Autoencoder Pretraining_003',0.003]]
+    model_list = [[1,'No Pretraining_0',0,0.0005],
+                  [1,'No Pretraining_0',0,0.0001],
+                  [0,'Stacked Autoencoder Pretraining_0003_0001',0.0003,0.0001],
+                  [0,'Stacked Autoencoder Pretraining_001_0001',0.001,0.0001],
+                  [0,'Stacked Autoencoder Pretraining_003_0001',0.003,0.0001],
+                  [0,'Stacked Autoencoder Pretraining_0003_0005',0.0003,0.0005],
+                  [0,'Stacked Autoencoder Pretraining_001_0005',0.001,0.0005],
+                  [0,'Stacked Autoencoder Pretraining_003_0005',0.003,0.0005]]
     
     res = train_2(model_list,layer_param)
     write_excel(*res)

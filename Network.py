@@ -63,10 +63,9 @@ class Autoencoder:
         return fc, Autoencoder.combine_transformers(fc,feature_transformer,op_transformer), 0.0 
     
     @staticmethod
-    def get_linear_layer(dataloader,hidden_layer_features,op_transformer,feature_transformer=lambda x: x,weight_decay=0):
+    def get_linear_layer(dataloader,hidden_layer_features,op_transformer,feature_transformer=lambda x: x,weight_decay=0,lr=0.001):
         
         epoch = 5
-        lr = 0.01
         
         in_features = Autoencoder.get_linear_infeatures(dataloader,feature_transformer)
         
@@ -81,8 +80,8 @@ class Autoencoder:
         return fc, Autoencoder.combine_transformers(fc,feature_transformer,op_transformer), total_loss
     
     @staticmethod
-    def train_autoencoder(model,dataloader,weight_decay=0):
-        lr=0.01
+    def train_autoencoder(model,dataloader,weight_decay=0,lr=0.001):
+
         loss_func = F.mse_loss
         optimizer = optim.Adam(model.parameters(),lr=lr,weight_decay=weight_decay)
         epoch = 10
@@ -158,7 +157,7 @@ class DAE_NN(nn.Module):
         return X
     
     @staticmethod
-    def construct_simultaneous(layer_params,dataloader,weight_decay=0):
+    def construct_simultaneous(layer_params,dataloader,weight_decay=0,lr=0.001):
         #layer_params = layer_params_.copy()
         layers = DAE_NN.construct_random_helper(layer_params,dataloader)
         
@@ -174,7 +173,7 @@ class DAE_NN(nn.Module):
         #print('*******')
         #print(layers)
         temp_model = DAE_NN(layers)
-        Autoencoder.train_autoencoder(temp_model,dataloader,weight_decay=weight_decay)
+        Autoencoder.train_autoencoder(temp_model,dataloader,weight_decay=weight_decay,lr=lr)
         
         for l in layers:
             l['obj'] = getattr(temp_model,l['name'])
@@ -201,14 +200,14 @@ class DAE_NN(nn.Module):
         return DAE_NN(DAE_NN.construct_random_helper(layer_params,dataloader))
     
     @staticmethod
-    def construct(layer_params,dataloader,weight_decay=0):
+    def construct(layer_params,dataloader,weight_decay=0,lr=0.001):
         #layer_params = layer_params_.copy()
         next_transformer = lambda x: x #.flatten(start_dim=1)
         
         for l in layer_params:
 
             print('Training Layer',l['name'],': Begin')
-            init_layer, next_transformer, init_loss = Autoencoder.get_linear_layer(dataloader,l['out_features'],l['transformer'],feature_transformer=next_transformer,weight_decay=weight_decay)
+            init_layer, next_transformer, init_loss = Autoencoder.get_linear_layer(dataloader,l['out_features'],l['transformer'],feature_transformer=next_transformer,weight_decay=weight_decay,lr=lr)
             print('Training Layer',l['name'],': End')
             l['obj'] = init_layer
         
