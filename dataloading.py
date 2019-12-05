@@ -48,11 +48,11 @@ def get_dataset(is_train):
         store = pd.HDFStore(config.TEST_DATA_PATH)
         feature_array = config.TEST_DATA_NP_ARRAY
 
-    # features = store['rpkm'] # (21389, 20499)
+    features = store['rpkm'] # (21389, 20499)
     labels = store['labels'] # (21389,)
-
-    features = np.load(feature_array)
-
+	print('features in data:', features.shape[1]
+    # features = np.load(feature_array)
+	store.close()
 
     return GeneDataset(features, labels,
                        label_idx_to_str, label_str_to_idx)
@@ -60,6 +60,8 @@ def get_dataset(is_train):
 # the labels mapping from index to string is based off all the data
 store = pd.HDFStore(config.DATA_PATH + "all_data.h5")
 labels = store['labels']
+store.close()
+
 uniques = np.sort(np.unique(labels))
 label_idx_to_str = dict()
 label_str_to_idx = dict()

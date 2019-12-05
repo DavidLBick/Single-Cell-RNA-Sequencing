@@ -27,16 +27,6 @@ class BaselineModel(nn.Module):
             nn.ReLU(),
             nn.Linear(1000, 1000), 
             nn.ReLU(),
-            nn.Linear(1000, 1000), 
-            nn.ReLU(),
-            nn.Linear(1000, 1000), 
-            nn.ReLU(),
-            nn.Linear(1000, 1000), 
-            nn.ReLU(),
-            nn.Linear(1000, 1000), 
-            nn.ReLU(),
-            nn.Linear(1000, 1000), 
-            nn.ReLU(),
             nn.Linear(1000, 100))
 
         # final_hidden_size = set here output size of self.embedding_model 
