@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import dataloading
 import sys
+import itertools
 
 def get_layerwise_weight_dist(model):
     data, cols = [], []
@@ -238,7 +239,11 @@ def train_test(models,train_set,lr):
         #print('epoch',i,'total correct:',total_correct2,'',total_loss2/len(train_loader))
         print('\n')
     
-    return pd.DataFrame(res,columns=['Pretraining','Epoch','Total_correct','Total_correct_percentage','Loss_function'])
+    X_test, y_test = dataloading.get_dataset(False)
+    test_correct = models[0][1](X_test).argmax(dim=1).eq(y_test).sum()
+    res[0].append(test_correct/len(y_test))
+    
+    return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Test_correct_percentage'])
     
 #model_init = construct_model(layer_params_2,train_set,0)
 #model_random = construct_model(layer_params_2,train_set,1)
@@ -281,6 +286,8 @@ def train_2(model_list,layer_param):
         w_before['Pretraining'] = models[0][0]
         
         train_res = train_test(models,train_set,lr)
+        train_res['learning rate'] = lr
+        train_res['weight decay'] = weight_decay
         
         print('\n\n**** Layerwise weight distribution after training ****')
         w_after = get_layerwise_weight_dist(models[0][1])
@@ -294,17 +301,17 @@ def train_2(model_list,layer_param):
     w_before_pd = pd.concat(w_before_total)
     train_res_pd = pd.concat(train_res_total)
     
-    return w_after_pd,w_before_pd, train_res_pd
+    return train_res_pd
 
-def write_excel(w_after,w_before,train_res):
+def write_excel(train_res):
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer = pd.ExcelWriter('comparison.xlsx', engine='xlsxwriter')
     
     # Write each dataframe to a different worksheet. you could write different string like above if you want
-    w_before.to_excel(writer, sheet_name='Sheet1')
-    train_res.to_excel(writer, sheet_name='Sheet2')
-    w_after.to_excel(writer,sheet_name='Sheet3')
+    #w_before.to_excel(writer, sheet_name='Sheet1')
+    train_res.to_excel(writer, sheet_name='Sheet1')
+    #w_after.to_excel(writer,sheet_name='Sheet3')
     
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
@@ -337,20 +344,36 @@ def generate_layer_dic(n):
     
 if __name__ == '__main__':
     
-    hn = sys.argv[1]
+    #hn = sys.argv[1]
+    res = []
     
-    layer_param = generate_layer_dic(int(hn))
-    
-    model_list = [[1,'No Pretraining_0_00005',0,0.00005],
-                  [1,'No Pretraining_0_00001',0,0.00001],
-                  [0,'Stacked Autoencoder Pretraining_0003_00005',0.0003,0.00005],
-                  [0,'Stacked Autoencoder Pretraining_0003_00001',0.0003,0.00001],
-                  [0,'Stacked Autoencoder Pretraining_0001_00005',0.0001,0.00005],
-                  [0,'Stacked Autoencoder Pretraining_0001_00001',0.0001,0.00001],
-                  [0,'Stacked Autoencoder Pretraining_003_00001',0.003,0.00001],
-                  [0,'Stacked Autoencoder Pretraining_003_00001',0.003,0.00005],
-                  [0,'Stacked Autoencoder Pretraining_005_00001',0.005,0.00001],
-                  [0,'Stacked Autoencoder Pretraining_005_00005',0.005,0.00005]]
-    
-    res = train_2(model_list,layer_param)
-    write_excel(*res)
+    for hn in [1,2,5]:
+        
+        layer_param = generate_layer_dic(hn)
+        
+        lrs = [0.001,0.005,0.0005,0.00005]
+        wds = [0.003,0.005,0.0003]
+        
+        model_list = [ [1,'No Pretraining',0.0,l,hn] for l in lrs ]
+        model_list += [ [0,'Stacked Autoencoder Pretraining',w,l,hn ] for w,l in itertools.product(wds,lrs)  ]
+        
+        '''
+        model_list = [[1,'No Pretraining',0.0,0.00005,hn],
+                      [1,'No Pretraining',0.0,0.00001,hn],
+                      [0,'Stacked Autoencoder Pretraining',0.0003,0.00005,hn],
+                      [0,'Stacked Autoencoder Pretraining',0.0003,0.00001,hn],
+                      [0,'Stacked Autoencoder Pretraining',0.0001,0.00005,hn],
+                      [0,'Stacked Autoencoder Pretraining',0.0001,0.00001,hn],
+                      [0,'Stacked Autoencoder Pretraining',0.003,0.00001],
+                      [0,'Stacked Autoencoder Pretraining',0.003,0.00005],
+                      [0,'Stacked Autoencoder Pretraining',0.005,0.00001],
+                      [0,'Stacked Autoencoder Pretraining',0.005,0.00005]]
+        '''
+        
+        model_list = [ [k[0],k[1]+'_'+str(k[2]).split('.')[1]+'_'+str(k[3]).split('.')[1],k[2],k[3],k[4]] for k in model_list ]
+        temp = train_2(model_list,layer_param)
+        temp['Hidden Layers'] = hn
+        
+        res.append(temp)
+        
+    write_excel(pd.concat(res,axis=0))
