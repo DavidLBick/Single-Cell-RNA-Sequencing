@@ -330,10 +330,17 @@ def generate_layer_dic(n):
             })
     
     layer_param.append({
-                'name': 'out',
+                'name': 'embedding',
                 'type': 0,
                 'transformer': [],
                 'out_features': 100
+            })
+
+    layer_param.append({
+                'name': 'out',
+                'type': 0,
+                'transformer': [],
+                'out_features': config.N_CLASSES
             })
     
     return layer_param
@@ -349,7 +356,8 @@ if __name__ == '__main__':
         
         lrs = [0.001,0.0005,0.00075]
         wds = [0.003,0.005,0.0003]
-        wtrain = [0.0001,0.001]
+        wtrain = [0]
+        #wtrain = [0.0001,0.001]
         
         #lrs = [0.001]
         #wds = [0.003]        
