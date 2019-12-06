@@ -378,7 +378,7 @@ if __name__ == '__main__':
                       [0,'Stacked Autoencoder Pretraining',0.005,0.00005]]
         '''
         
-        model_list = [ [k[0],k[1]+'_'+"{:.5f}".format(k[2]).split('.')[1]+'_'+"{:.5f}".format(k[3]).split('.')[1],k[2],k[3],k[4],k[5]] for k in model_list ]
+        model_list = [ [k[0],k[1]+'_'+"{:.5f}".format(k[2]).split('.')[1]+'_'+"{:.5f}".format(k[3]).split('.')[1]+'_'+"{:.5f}".format(k[4]).split('.')[1],k[2],k[3],k[4],k[5]] for k in model_list ]
         temp = train_2(model_list,layer_param)
         temp['Hidden Layers'] = hn
         
