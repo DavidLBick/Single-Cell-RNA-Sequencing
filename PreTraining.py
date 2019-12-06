@@ -240,10 +240,10 @@ def train_test(models,train_set,lr):
         print('\n')
     
     test_ds = dataloading.get_dataset(False)
-    X_test, y_test = torch.utils.data.DataLoader(test_ds,batch_size=len(test_ds))[0]
-    test_correct = models[0][1](X_test).argmax(dim=1).eq(y_test).sum()
-    res[0].append(test_correct/len(y_test))
-    
+    X_test, y_test = list(torch.utils.data.DataLoader(test_ds,batch_size=len(test_ds)))[0]
+    test_correct = models[0][1](X_test).argmax(dim=1).eq(y_test).sum().item()
+    res[-1].append(test_correct/len(y_test))
+    print('Test error:', res[-1][-1])    
     return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Test_correct_percentage'])
     
 #model_init = construct_model(layer_params_2,train_set,0)
@@ -348,15 +348,15 @@ if __name__ == '__main__':
     #hn = sys.argv[1]
     res = []
     
-    for hn in [1,2]:#[1,2,5]:
+    for hn in [1,2,5]:
         
         layer_param = generate_layer_dic(hn)
         
-        #lrs = [0.001,0.005,0.0005,0.00005]
-        #wds = [0.003,0.005,0.0003]
+        lrs = [0.001,0.005,0.0005,0.00005]
+        wds = [0.003,0.005,0.0003]
         
-        lrs = [0.001]
-        wds = [0.003]        
+        #lrs = [0.001]
+        #wds = [0.003]        
         
         model_list = [ [1,'No Pretraining',0.0,l,hn] for l in lrs ]
         model_list += [ [0,'Stacked Autoencoder Pretraining',w,l,hn ] for w,l in itertools.product(wds,lrs)  ]
