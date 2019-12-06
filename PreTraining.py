@@ -14,6 +14,7 @@ import pandas as pd
 import dataloading
 import sys
 import itertools
+import config
 
 def get_layerwise_weight_dist(model):
     data, cols = [], []
