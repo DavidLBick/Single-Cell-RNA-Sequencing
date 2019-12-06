@@ -172,12 +172,12 @@ def construct_model(layer_params_,train_set,flag,weight_decay=0,lr=0.001):
     
     return model
     
-def train_test(models,train_set,lr):
+def train_test(models,train_set,lr,reg):
     
     epoch = 15
     
     train_loader = torch.utils.data.DataLoader(train_set,batch_size=1000)
-    optimizers = [ optim.Adam(m.parameters(), lr=lr) for _,m in models ]
+    optimizers = [ optim.Adam(m.parameters(), weight_decay = reg, lr=lr) for _,m in models ]
     
 #    optimizer1 = optim.Adam(model1.parameters(), lr=lr)
 #    optimizer2 = optim.Adam(model2.parameters(), lr=lr)
@@ -234,7 +234,7 @@ def train_test(models,train_set,lr):
             
         
         for i in range(len(models)):
-            res.append( [models[i][0],j,total_correct[i].item(),total_correct[i].item()/len(train_set),total_loss[i]/len(train_loader)] )
+            res.append( [models[i][0],j,total_correct[i].item(),total_correct[i].item()/len(train_set),total_loss[i]/len(train_loader),reg] )
             print('model:',models[i][0],'\nepoch:',j,'\ntotal correct:',total_correct[i].item(),'\ntotal % correct:',total_correct[i].item()/len(train_set),'\nloss func:',total_loss[i]/len(train_loader))
         #print('epoch',i,'total correct:',total_correct2,'',total_loss2/len(train_loader))
         print('\n')
@@ -244,7 +244,7 @@ def train_test(models,train_set,lr):
     test_correct = models[0][1](X_test).argmax(dim=1).eq(y_test).sum().item()
     res[-1].append(test_correct/len(y_test))
     print('Test error:', res[-1][-1])    
-    return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Test_correct_percentage'])
+    return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Train_weight_decay','Test_correct_percentage'])
     
 #model_init = construct_model(layer_params_2,train_set,0)
 #model_random = construct_model(layer_params_2,train_set,1)
@@ -277,7 +277,7 @@ def train_2(model_list,layer_param):
     train_res_total = []
     
     #for t, m_name in enumerate(['Stacked Autoencoder Pretraining','No Pretraining Network','End-to-End Autoencoder Pretraining']):
-    for t, m_name, weight_decay, lr, _ in model_list:
+    for t, m_name, weight_decay, lr, wt, _ in model_list:
         
         model = construct_model(layer_param,train_set,t,weight_decay,lr)
         models = [(m_name,model)]
@@ -286,7 +286,7 @@ def train_2(model_list,layer_param):
         w_before = get_layerwise_weight_dist(models[0][1])
         w_before['Pretraining'] = models[0][0]
         
-        train_res = train_test(models,train_set,lr)
+        train_res = train_test(models,train_set,lr,wt)
         train_res['learning rate'] = lr
         train_res['weight decay'] = weight_decay
         
@@ -343,18 +343,19 @@ if __name__ == '__main__':
     #hn = sys.argv[1]
     res = []
     
-    for hn in [1]:
+    for hn in [2]:
         
         layer_param = generate_layer_dic(hn)
         
-        lrs = [0.001,0.0005,0.00005]
+        lrs = [0.001,0.0005,0.00075]
         wds = [0.003,0.005,0.0003]
+        wtrain = [0.0001,0.001]
         
         #lrs = [0.001]
         #wds = [0.003]        
         
-        model_list = [ [1,'No Pretraining',0.0,l,hn] for l in lrs ]
-        model_list += [ [0,'Stacked Autoencoder Pretraining',w,l,hn ] for w,l in itertools.product(wds,lrs)  ]
+        model_list = [ [1,'No Pretraining',0.0,l,wt,hn] for l,wt in itertools.product(lrs,wtrain) ]
+        model_list += [ [0,'Stacked Autoencoder Pretraining',w,l,wt,hn ] for w,l,wt in itertools.product(wds,lrs,wtrain)  ]
         
         '''
         model_list = [[1,'No Pretraining',0.0,0.00005,hn],
@@ -369,7 +370,7 @@ if __name__ == '__main__':
                       [0,'Stacked Autoencoder Pretraining',0.005,0.00005]]
         '''
         
-        model_list = [ [k[0],k[1]+'_'+"{:.5f}".format(k[2]).split('.')[1]+'_'+"{:.5f}".format(k[3]).split('.')[1],k[2],k[3],k[4]] for k in model_list ]
+        model_list = [ [k[0],k[1]+'_'+"{:.5f}".format(k[2]).split('.')[1]+'_'+"{:.5f}".format(k[3]).split('.')[1],k[2],k[3],k[4],k[5]] for k in model_list ]
         temp = train_2(model_list,layer_param)
         temp['Hidden Layers'] = hn
         
