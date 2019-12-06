@@ -76,6 +76,9 @@ def plot_grad_flow(named_parameters,title):
     plt.grid(True)
 
 train_set = dataloading.get_dataset(True)
+#_, train_w = list(torch.utils.data.DataLoader(test_ds,batch_size=len(train_set)))[0]
+#balance_classes = np.array()
+
 
 layer_params_2 = [
         {
@@ -175,8 +178,8 @@ def construct_model(layer_params_,train_set,flag,weight_decay=0,lr=0.001):
 def train_test(models,train_set,lr,reg):
     
     epoch = 15
-    
-    train_loader = torch.utils.data.DataLoader(train_set,batch_size=1000)
+        
+    train_loader = torch.utils.data.DataLoader(train_set,batch_size=64)
     optimizers = [ optim.Adam(m.parameters(), weight_decay = reg, lr=lr) for _,m in models ]
     
 #    optimizer1 = optim.Adam(model1.parameters(), lr=lr)
