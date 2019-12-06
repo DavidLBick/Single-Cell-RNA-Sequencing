@@ -319,16 +319,11 @@ def write_excel(train_res):
 
 def generate_layer_dic(n):
     
-    layer_param = [{
-                'name': 'fc1',
-                'type': 0,
-                'transformer': [nn.ReLU()],
-                'out_features': 1005
-            }]
+    layer_param = []
     
     for i in range(n):
         layer_param.append({
-                'name': 'fc'+str(i+2),
+                'name': 'fc'+str(i+1),
                 'type': 0,
                 'transformer': [nn.ReLU()],
                 'out_features': 1000
@@ -348,11 +343,11 @@ if __name__ == '__main__':
     #hn = sys.argv[1]
     res = []
     
-    for hn in [1,2,5]:
+    for hn in [1]:
         
         layer_param = generate_layer_dic(hn)
         
-        lrs = [0.001,0.005,0.0005,0.00005]
+        lrs = [0.001,0.0005,0.00005]
         wds = [0.003,0.005,0.0003]
         
         #lrs = [0.001]
