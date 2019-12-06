@@ -239,7 +239,8 @@ def train_test(models,train_set,lr):
         #print('epoch',i,'total correct:',total_correct2,'',total_loss2/len(train_loader))
         print('\n')
     
-    X_test, y_test = dataloading.get_dataset(False)
+    test_ds = dataloading.get_dataset(False)
+    X_test, y_test = torch.utils.data.DataLoader(test_ds,batch_size=len(test_ds))[0]
     test_correct = models[0][1](X_test).argmax(dim=1).eq(y_test).sum()
     res[0].append(test_correct/len(y_test))
     
@@ -276,7 +277,7 @@ def train_2(model_list,layer_param):
     train_res_total = []
     
     #for t, m_name in enumerate(['Stacked Autoencoder Pretraining','No Pretraining Network','End-to-End Autoencoder Pretraining']):
-    for t, m_name, weight_decay, lr in model_list:
+    for t, m_name, weight_decay, lr, _ in model_list:
         
         model = construct_model(layer_param,train_set,t,weight_decay,lr)
         models = [(m_name,model)]
@@ -347,12 +348,15 @@ if __name__ == '__main__':
     #hn = sys.argv[1]
     res = []
     
-    for hn in [1,2,5]:
+    for hn in [1,2]:#[1,2,5]:
         
         layer_param = generate_layer_dic(hn)
         
-        lrs = [0.001,0.005,0.0005,0.00005]
-        wds = [0.003,0.005,0.0003]
+        #lrs = [0.001,0.005,0.0005,0.00005]
+        #wds = [0.003,0.005,0.0003]
+        
+        lrs = [0.001]
+        wds = [0.003]        
         
         model_list = [ [1,'No Pretraining',0.0,l,hn] for l in lrs ]
         model_list += [ [0,'Stacked Autoencoder Pretraining',w,l,hn ] for w,l in itertools.product(wds,lrs)  ]
