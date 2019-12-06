@@ -15,6 +15,8 @@ import dataloading
 import sys
 import itertools
 import config
+import Evaluation
+from sklearn.cluster import KMeans
 
 def get_layerwise_weight_dist(model):
     data, cols = [], []
@@ -247,8 +249,18 @@ def train_test(models,train_set,lr,reg):
     X_test, y_test = list(torch.utils.data.DataLoader(test_ds,batch_size=len(test_ds)))[0]
     test_correct = models[0][1](X_test).argmax(dim=1).eq(y_test).sum().item()
     res[-1].append(test_correct/len(y_test))
-    print('Test error:', res[-1][-1])    
-    return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Train_weight_decay','Test_correct_percentage'])
+    print('Test error:', res[-1][-1])
+    
+    clus_model = DAE_NN(models[0][1].layers[:-1])
+    
+    clus_res = Evaluation.EvalClustering.evaluate(KMeans,
+                                  clus_model(X_test),
+                                  y_test,
+                                  iters=10,
+                                  n_clusters=config.N_CLASSES)
+    
+    res += list(clus_res)
+    return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Train_weight_decay','Test_correct_percentage']+list(clus_res.keys()) )
     
 #model_init = construct_model(layer_params_2,train_set,0)
 #model_random = construct_model(layer_params_2,train_set,1)
@@ -358,9 +370,9 @@ if __name__ == '__main__':
         
         layer_param = generate_layer_dic(hn)
         
-        lrs = [0.001,0.0005,0.00075]
-        wds = [0.003,0.005,0.0003]
-        wtrain = [0]
+        lrs = [0.0005]
+        wds = [0.003,0.005]
+        wtrain = [0,0.000001]
         #wtrain = [0.0001,0.001]
         
         #lrs = [0.001]
