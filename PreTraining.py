@@ -254,13 +254,15 @@ def train_test(models,train_set,lr,reg):
     clus_model = DAE_NN(models[0][1].layers[:-1])
     
     clus_res = Evaluation.EvalClustering.evaluate(KMeans,
-                                  clus_model(X_test),
+                                  clus_model(X_test).detach().numpy(),
                                   y_test,
                                   iters=10,
                                   n_clusters=config.N_CLASSES)
     
-    res += list(clus_res)
-    return pd.DataFrame(res,columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Train_weight_decay','Test_correct_percentage']+list(clus_res.keys()) )
+    res[-1] += list(clus_res)
+    #print(res)
+    #print(clust_res.keys())
+    return pd.DataFrame([res[-1]],columns=['Pretraining','Epoch','Train_Total_correct','Train_correct_percentage','Train_Loss_function','Train_weight_decay','Test_correct_percentage']+list(clus_res.keys()) )
     
 #model_init = construct_model(layer_params_2,train_set,0)
 #model_random = construct_model(layer_params_2,train_set,1)
